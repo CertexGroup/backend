@@ -17,13 +17,15 @@
       var canvas = document.getElementById('myCanvas');
       var context = canvas.getContext('2d');
       var imageObj = new Image();
+      var sjcl = require('./core.js');
 
       imageObj.onload = function() {
         context.drawImage(imageObj, 0, 0, 300, 400);
         var base64 = canvas.toDataURL("image/jpg");
         console.log(base64);
-        var bmd5 = md5(base64);
-        console.log(md5);
+        var bitArray = sjcl.hash.sha256.hash("message");
+        var digest_sha256 = sjcl.codec.hex.fromBits(bitArray);
+        console.log(digest_sha256);
         document.getElementById("md5").innerHTML = bmd5;
       };
       imageObj.src = 'backend/titulo.jpg';
