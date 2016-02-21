@@ -24,7 +24,9 @@ var digest_sha256 = sjcl.codec.hex.fromBits(bitArray);
 // ENCRYPTING AND DECRIPTING
 console.log("ENCRYPTION");
 
-var ct = sjcl.encrypt(crypto_keys.pub, "this is a secret message");
+//var ct = sjcl.encrypt(crypto_keys.pub, "this is a secret message");
 //console.log(ct);
-var pt = sjcl.decrypt(crypto_keys.sec, ct);
-console.log(pt);
+//var pt = sjcl.decrypt(crypto_keys.sec, ct);
+//console.log(pt);
+var sig = crypto_keys.sec.sign("chomba");
+var ok = crypto_keys.pub.verify("chomba", sig);
