@@ -11,24 +11,46 @@
   </head>
   <body>
     <canvas id="myCanvas" width="300" height="400"></canvas>
-    <p id="md5"></p>
-    <script src="md5.min.js"></script>
+    <p id="md5">Hash: </p>
+    <p id="private">Private: </p>
+    <p id="public">Public: </p>
+    <p id="base64">Base64: </p>
+    <script src="require.js"></script>
+    <script src="core.js"></script>
     <script>
-      var canvas = document.getElementById('myCanvas');
-      var context = canvas.getContext('2d');
-      var imageObj = new Image();
-      var sjcl = require('./core.js');
+    define(function (require) {
+      var sjcl = require('core.js');
+    });
 
-      imageObj.onload = function() {
-        context.drawImage(imageObj, 0, 0, 300, 400);
-        var base64 = canvas.toDataURL("image/jpg");
-        console.log(base64);
-        var bitArray = sjcl.hash.sha256.hash("message");
-        var digest_sha256 = sjcl.codec.hex.fromBits(bitArray);
-        console.log(digest_sha256);
-        document.getElementById("md5").innerHTML = bmd5;
-      };
-      imageObj.src = 'backend/titulo.jpg';
+    crypto_keys = sjcl.ecc.elGamal.generateKeys(256);
+
+    var public_key = crypto_keys.pub.get();
+    var secret_key = crypto_keys.sec.get();
+
+    var public_key_hex = sjcl.codec.hex.fromBits(public_key.x) + sjcl.codec.hex.fromBits(public_key.y);
+    var secret_key_hex = sjcl.codec.hex.fromBits(secret_key);
+
+    console.log(public_key_hex + ":::" + secret_key_hex);
+
+        var canvas = document.getElementById('myCanvas');
+        var context = canvas.getContext('2d');
+        var imageObj = new Image();
+
+
+        imageObj.onload = function() {
+          context.drawImage(imageObj, 0, 0, 300, 400);
+          var base64 = canvas.toDataURL("image/jpg");
+          console.log(base64);
+          var bitArray = sjcl.hash.sha256.hash("message");
+          var digest_sha256 = sjcl.codec.hex.fromBits(bitArray);
+          console.log(digest_sha256);
+          document.getElementById("md5").innerHTML += digest_sha256;
+          document.getElementById("private").innerHTML += secret_key_hex;
+          document.getElementById("public").innerHTML += public_key_hex;
+          //document.getElementById("base64").innerHTML += base64;
+        };
+        imageObj.src = 'backend/titulo.jpg';
+
     </script>
   </body>
 </html>
