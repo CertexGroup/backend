@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <meta charset="ISO-8859-1">
+    <title>Compressed Image to base64</title>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="300" height="400"></canvas>
+    <p id="md5"></p>
+    <script src="md5.min.js"></script>
+    <script>
+      var canvas = document.getElementById('myCanvas');
+      var context = canvas.getContext('2d');
+      var imageObj = new Image();
+
+      imageObj.onload = function() {
+        context.drawImage(imageObj, 0, 0, 300, 400);
+        var base64 = canvas.toDataURL("image/jpg");
+        console.log(base64);
+        var bmd5 = md5(base64);
+        console.log(md5);
+        document.getElementById("md5").innerHTML = bmd5;
+      };
+      imageObj.src = 'backend/titulo.jpg';
+    </script>
+  </body>
+</html>
