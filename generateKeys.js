@@ -3,7 +3,7 @@ var sjcl = require('./core.js');
 // PUBLIC KEY GENERATION
 console.log("KEY GENERATION");
 
-crypto_keys = sjcl.ecc.elGamal.generateKeys(256);
+crypto_keys = sjcl.ecc.ecdsa.generateKeys(256);
 
 var public_key = crypto_keys.pub.get();
 var secret_key = crypto_keys.sec.get();
@@ -24,7 +24,8 @@ var digest_sha256 = sjcl.codec.hex.fromBits(bitArray);
 // ENCRYPTING AND DECRIPTING
 console.log("ENCRYPTION");
 
-var ct = sjcl.encrypt(crypto_keys.pub, "this is a secret message");
-//console.log(ct);
-var pt = sjcl.decrypt(crypto_keys.sec, ct);
-console.log(pt);
+var sig = crypto_keys.sec.sign(sjcl.hash.sha256.hash("Hello World!"));
+
+var ok = crypto_keys.pub.verify(sjcl.hash.sha256.hash("Hello Wold!"), sig);
+
+console.log(ok);

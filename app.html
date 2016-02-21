@@ -10,7 +10,7 @@
     </style>
   </head>
   <body>
-    <canvas id="myCanvas" width="300" height="400"></canvas>
+    <canvas id="myCanvas" width="110" height="150"></canvas>
     <p id="md5">Hash: </p>
     <p id="private">Private: </p>
     <p id="public">Public: </p>
@@ -22,34 +22,78 @@
       var sjcl = require('core.js');
     });
 
-    crypto_keys = sjcl.ecc.elGamal.generateKeys(256);
+    var public_key, secret_key, public_key_hex, secret_key_hex;
+    var canvas, context, imageObj;
+    var bitArray, digest_sha256;
+    var sig, verified;
 
-    var public_key = crypto_keys.pub.get();
-    var secret_key = crypto_keys.sec.get();
+    function loadCanvas(){
+      canvas = document.getElementById('myCanvas');
+      context = canvas.getContext('2d');
+      imageObj = new Image();
+      imageObj.src = 'backend/titulo.jpg';
+    }
 
-    var public_key_hex = sjcl.codec.hex.fromBits(public_key.x) + sjcl.codec.hex.fromBits(public_key.y);
-    var secret_key_hex = sjcl.codec.hex.fromBits(secret_key);
+    function createKeys(){
+      crypto_keys = sjcl.ecc.ecdsa.generateKeys(256);
 
-    console.log(public_key_hex + ":::" + secret_key_hex);
+      public_key = crypto_keys.pub.get();
+      secret_key = crypto_keys.sec.get();
 
-        var canvas = document.getElementById('myCanvas');
-        var context = canvas.getContext('2d');
-        var imageObj = new Image();
+      public_key_hex = sjcl.codec.hex.fromBits(public_key.x) + sjcl.codec.hex.fromBits(public_key.y);
+      secret_key_hex = sjcl.codec.hex.fromBits(secret_key);
 
+      console.log(public_key_hex + ":::" + secret_key_hex);
+    }
 
-        imageObj.onload = function() {
-          context.drawImage(imageObj, 0, 0, 300, 400);
-          var base64 = canvas.toDataURL("image/jpg");
-          console.log(base64);
-          var bitArray = sjcl.hash.sha256.hash("message");
-          var digest_sha256 = sjcl.codec.hex.fromBits(bitArray);
-          console.log(digest_sha256);
-          document.getElementById("md5").innerHTML += digest_sha256;
-          document.getElementById("private").innerHTML += secret_key_hex;
-          document.getElementById("public").innerHTML += public_key_hex;
-          //document.getElementById("base64").innerHTML += base64;
-        };
-        imageObj.src = 'backend/titulo.jpg';
+    function getImgBase64(){
+      var base64 = canvas.toDataURL("image/jpg");
+      console.log(base64);
+    }
+
+    function getDigest(){
+      bitArray = sjcl.hash.sha256.hash(base64);
+      digest_sha256 = sjcl.codec.hex.fromBits(bitArray);
+      console.log(digest_sha256);
+    }
+
+    function sign(digestHash){
+      sig = crypto_keys.sec.sign(digest_sha256);
+    }
+
+    function verify(digestHash, signature){
+      try{
+        return crypto_keys.pub.verify(digestHash, signature);
+      }catch(err){
+        return false;
+      }
+    }
+
+    loadCanvas();
+    imageObj.onload = function() {
+      context.drawImage(imageObj, 0, 0, 110, 150);
+
+      createKeys();
+      getImgBase64();
+      getDigest();
+
+      document.getElementById("md5").innerHTML += digest_sha256;
+      document.getElementById("private").innerHTML += secret_key_hex;
+      document.getElementById("public").innerHTML += public_key_hex;
+      //document.getElementById("base64").innerHTML += base64;
+
+      console.log("ENCRYPTION");
+      sign(digest_sha256);
+
+      verified = verify("digest_sha256", sig);
+
+      if(verified){
+        console.log("verified");
+      }else{
+        console.log("bullshit");
+      }
+
+    };
 
     </script>
   </body>
