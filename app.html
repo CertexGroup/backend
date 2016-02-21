@@ -26,7 +26,7 @@
         var bitArray = sjcl.hash.sha256.hash("message");
         var digest_sha256 = sjcl.codec.hex.fromBits(bitArray);
         console.log(digest_sha256);
-        document.getElementById("md5").innerHTML = bmd5;
+        document.getElementById("md5").innerHTML = digest_sha256;
       };
       imageObj.src = 'backend/titulo.jpg';
     </script>
